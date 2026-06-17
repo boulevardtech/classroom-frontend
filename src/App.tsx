@@ -17,7 +17,8 @@ import Dashboard from "./pages/dashboard";
 import subjectList from "./subjects/subjectsList";
 import { Home, BookOpen } from "lucide-react";
 import SubjectsList from "./subjects/subjectsList";
-import SubjectsCreate from "./subjects/subjectscreate";
+import SubjectsCreate from "./subjects/SubjectsCreate";
+
 
 function App() {
   return (
