@@ -1,152 +1,80 @@
-import { createSimpleRestDataProvider } from "@refinedev/rest/simple-rest";
-import { API_URL } from "./constants";
-import { mockSubjects } from "./mock-data";
-import { BaseRecord, CrudFilter, DataProvider } from "@refinedev/core";
+import {createDataProvider,CreateDataProviderOptions} from "@refinedev/rest";
+import {BACKEND_BASE_URL} from "@/constants";
+import {ListResponse} from "@/types";
+const options: CreateDataProviderOptions = {
+  getList:{
+    getEndpoint:({resource}) => resource,
+    buildQueryParams: async({resource,pagination,filters})=>{
+      const page = pagination?.currentPage??1;
+      const pageSize = pagination?.pageSize?? 10;
+     // const params = {page,limit:pageSize};
+      const params:Record<string,string|number> = {page,limit:pageSize};
+      filters?.forEach((filter)=>{
+        const field = 'field' in filter ? filter.field:'';
+        const value = String(filter.value);
+        if(resource=== 'subjects'){
+          if(field=== 'department')params.department = value;
+          if(field=== 'name'|| field=== 'code')params.search = value;
 
-const simpleRestDataProvider = createSimpleRestDataProvider({
-  apiURL: API_URL,
-});
+        }
+      })
+      return params;
+    },
+    mapResponse: async(response)=>{
+      const payload: ListResponse = await response.clone().json();
 
-// Create a mock data provider wrapper
-const mockDataProvider: DataProvider = {
-  ...simpleRestDataProvider,
-  getList: async ({ resource, filters, pagination, sorters, meta }) => {
-    if (resource === "subjects") {
-      let filteredSubjects = [...mockSubjects];
+      return payload.data ?? [];
+    },
+    getTotalCount: async (response)=>{
+      const payload: ListResponse = await response.clone().json();
+      return payload.pagination?.total ?? payload.data ?.length ?? 0;
+    }
 
-      // Apply filters
-      if (filters) {
-        filters.forEach((filter: CrudFilter) => {
-          if (filter.field && filter.value) {
-            if (filter.operator === "eq") {
-              filteredSubjects = filteredSubjects.filter(
-                (subject: any) => subject[filter.field] === filter.value
-              );
-            } else if (filter.operator === "contains") {
-              filteredSubjects = filteredSubjects.filter(
-                (subject: any) =>
-                  subject[filter.field]
-                    ?.toString()
-                    .toLowerCase()
-                    .includes((filter.value as string).toLowerCase())
-              );
-            }
-          }
-        });
-      }
+  }
 
-      // Apply sorters
-      if (sorters) {
-        sorters.forEach((sorter: any) => {
-          filteredSubjects.sort((a: any, b: any) => {
-            const aValue = a[sorter.field];
-            const bValue = b[sorter.field];
-            return sorter.order === "asc"
-              ? aValue > bValue
-                ? 1
-                : -1
-              : bValue > aValue
-              ? 1
-              : -1;
-          });
-        });
-      }
+}
 
-      // Apply pagination
-      const pageSize = pagination?.pageSize || 10;
-      const pageIndex = (pagination?.current || 1) - 1;
-      const startIndex = pageIndex * pageSize;
-      const endIndex = startIndex + pageSize;
+const {dataProvider: baseDataProvider} = createDataProvider(BACKEND_BASE_URL, options);
 
-      const paginatedSubjects = filteredSubjects.slice(startIndex, endIndex);
+export const dataProvider = {
+  ...baseDataProvider,
+  getList: async ({ resource, pagination, filters, sorters, meta }: any) => {
+    const url = new URL(`${BACKEND_BASE_URL}/${resource}`);
 
-      return Promise.resolve({
-        data: paginatedSubjects,
-        total: filteredSubjects.length,
+    if (pagination) {
+      url.searchParams.append("page", (pagination.current ?? 1).toString());
+      url.searchParams.append("limit", (pagination.pageSize ?? 10).toString());
+    }
+
+    if (filters) {
+      filters.forEach((filter: any) => {
+        if (filter.field === "name" && filter.operator === "contains") {
+          url.searchParams.append("search", filter.value);
+        }
+        if (filter.field === "department" && filter.operator === "eq") {
+          url.searchParams.append("department", filter.value);
+        }
       });
     }
 
-    // For other resources, use the simple REST provider
-    return simpleRestDataProvider.getList?.({
-      resource,
-      filters,
-      pagination,
-      sorters,
-      meta,
-    }) as Promise<any>;
-  },
-
-  getOne: async ({ resource, id, meta }) => {
-    if (resource === "subjects") {
-      const subject = mockSubjects.find((s) => s.id === Number(id));
-      if (subject) {
-        return Promise.resolve({ data: subject });
-      }
-      return Promise.reject(new Error("Subject not found"));
-    }
-
-    return simpleRestDataProvider.getOne?.({
-      resource,
-      id,
-      meta,
-    }) as Promise<any>;
-  },
-
-  create: async ({ resource, values, meta }) => {
-    if (resource === "subjects") {
-      const newSubject = {
-        ...values,
-        id: Math.max(...mockSubjects.map((s) => s.id)) + 1,
-        createdAt: new Date().toISOString(),
+    const response = await fetch(url.toString()).catch((error) => {
+      throw {
+        message: error.message,
+        statusCode: undefined,
       };
-      mockSubjects.push(newSubject);
-      return Promise.resolve({ data: newSubject });
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw {
+        message: errorData.message || errorData.error || "Fetch error",
+        statusCode: response.status,
+      };
     }
 
-    return simpleRestDataProvider.create?.({
-      resource,
-      values,
-      meta,
-    }) as Promise<any>;
-  },
-
-  update: async ({ resource, id, values, meta }) => {
-    if (resource === "subjects") {
-      const index = mockSubjects.findIndex((s) => s.id === Number(id));
-      if (index !== -1) {
-        mockSubjects[index] = { ...mockSubjects[index], ...values };
-        return Promise.resolve({ data: mockSubjects[index] });
-      }
-      return Promise.reject(new Error("Subject not found"));
-    }
-
-    return simpleRestDataProvider.update?.({
-      resource,
-      id,
-      values,
-      meta,
-    }) as Promise<any>;
-  },
-
-  deleteOne: async ({ resource, id, meta }) => {
-    if (resource === "subjects") {
-      const index = mockSubjects.findIndex((s) => s.id === Number(id));
-      if (index !== -1) {
-        const deletedSubject = mockSubjects[index];
-        mockSubjects.splice(index, 1);
-        return Promise.resolve({ data: deletedSubject });
-      }
-      return Promise.reject(new Error("Subject not found"));
-    }
-
-    return simpleRestDataProvider.deleteOne?.({
-      resource,
-      id,
-      meta,
-    }) as Promise<any>;
+    return {
+      data: await options.getList!.mapResponse!(response),
+      total: await options.getList!.getTotalCount!(response),
+    };
   },
 };
-
-export const { dataProvider: simpleDataProvider, kyInstance } =
-  simpleRestDataProvider;
-export const dataProvider = mockDataProvider;

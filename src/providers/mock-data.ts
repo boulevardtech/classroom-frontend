@@ -1,12 +1,12 @@
-import { Subjects } from '@/types';
+import { Subject } from '@/types';
 
-export const mockSubjects: Subjects[] = [
+export const mockSubjects: Subject[] = [
   {
     id: 1,
     name: 'Introduction to Computer Science',
     code: 'CS101',
     description: 'Fundamental concepts of computer science including algorithms, data structures, and programming paradigms.',
-    department: 'Computer Science',
+    department: { id: 1, code: 'CS', name: 'Computer Science', description: '' },
     createdAt: '2024-01-15T10:30:00Z',
   },
   {
@@ -14,7 +14,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Data Structures and Algorithms',
     code: 'CS201',
     description: 'Advanced study of data structures including trees, graphs, and hash tables with algorithm analysis.',
-    department: 'Computer Science',
+    department: { id: 1, code: 'CS', name: 'Computer Science', description: '' },
     createdAt: '2024-01-20T14:45:00Z',
   },
   {
@@ -22,7 +22,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Web Development Fundamentals',
     code: 'CS301',
     description: 'Introduction to web technologies including HTML, CSS, JavaScript, and responsive design.',
-    department: 'Computer Science',
+    department: { id: 1, code: 'CS', name: 'Computer Science', description: '' },
     createdAt: '2024-02-01T09:15:00Z',
   },
   {
@@ -30,7 +30,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Database Management Systems',
     code: 'CS401',
     description: 'Design and implementation of relational databases, SQL queries, and database optimization.',
-    department: 'Computer Science',
+    department: { id: 1, code: 'CS', name: 'Computer Science', description: '' },
     createdAt: '2024-02-10T11:20:00Z',
   },
   {
@@ -38,7 +38,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Linear Algebra',
     code: 'MATH101',
     description: 'Vectors, matrices, eigenvalues, and applications in computer science and engineering.',
-    department: 'Mathematics',
+    department: { id: 2, code: 'MATH', name: 'Mathematics', description: '' },
     createdAt: '2024-02-15T13:40:00Z',
   },
   {
@@ -46,7 +46,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Calculus II',
     code: 'MATH102',
     description: 'Integration techniques, differential equations, and series convergence.',
-    department: 'Mathematics',
+    department: { id: 2, code: 'MATH', name: 'Mathematics', description: '' },
     createdAt: '2024-02-20T10:00:00Z',
   },
   {
@@ -54,7 +54,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Physics I: Mechanics',
     code: 'PHYS101',
     description: 'Classical mechanics including kinematics, dynamics, energy, and momentum.',
-    department: 'Physics',
+    department: { id: 3, code: 'PHYS', name: 'Physics', description: '' },
     createdAt: '2024-03-01T08:30:00Z',
   },
   {
@@ -62,7 +62,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Physics II: Electricity and Magnetism',
     code: 'PHYS102',
     description: 'Electric fields, magnetic forces, circuits, and electromagnetic waves.',
-    department: 'Physics',
+    department: { id: 3, code: 'PHYS', name: 'Physics', description: '' },
     createdAt: '2024-03-05T15:20:00Z',
   },
   {
@@ -70,7 +70,7 @@ export const mockSubjects: Subjects[] = [
     name: 'English Composition',
     code: 'ENG101',
     description: 'Academic writing skills including essay structure, research, and critical thinking.',
-    department: 'English',
+    department: { id: 4, code: 'ENG', name: 'English', description: '' },
     createdAt: '2024-03-10T12:00:00Z',
   },
   {
@@ -78,7 +78,7 @@ export const mockSubjects: Subjects[] = [
     name: 'Literature and Analysis',
     code: 'ENG202',
     description: 'Critical reading and analysis of classic and contemporary literature.',
-    department: 'English',
+    department: { id: 4, code: 'ENG', name: 'English', description: '' },
     createdAt: '2024-03-15T14:30:00Z',
   },
 ];
