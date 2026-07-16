@@ -9,8 +9,8 @@ import { Search } from 'lucide-react'
 import { useTable } from '@refinedev/react-table';
 import { CrudFilter } from '@refinedev/core';
 import React, { useMemo, useState } from 'react'
-import { Subjects } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
+import {Subject} from '@/types'
 
 //import { useState } from 'react';
 
@@ -24,7 +24,7 @@ function SubjectsList() {
     { field: 'name', operator: 'contains' as const, value: searchQuery }
   ] : [];
  // const filters = [...departmentFilters, ...searchFilters];
-  const columns = useMemo<ColumnDef<Subjects>[]>(
+  const columns = useMemo<ColumnDef<Subject>[]>(
     () => [
       {
         id: 'code',
@@ -43,7 +43,7 @@ function SubjectsList() {
       },
       {
         id: 'department',
-        accessorKey: 'department',
+        accessorKey: 'department.name',
         size: 150,
         header: () => <p className='column-title ml-2'>Department</p>,
         cell: ({ getValue }) => <Badge variant="secondary">{getValue<string>()}</Badge>,
@@ -58,7 +58,7 @@ function SubjectsList() {
     []
   );
 
-  const subjectTable = useTable<Subjects>({
+  const subjectTable = useTable<Subject>({
     columns,
     refineCoreProps: {
       resource: 'subjects',
